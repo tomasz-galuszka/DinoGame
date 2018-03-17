@@ -1,5 +1,6 @@
 Xpr.games.hopPlatform.controlls = function (game) {
 	var cursors = game.input.keyboard.createCursorKeys();
+	var spaceBar = game.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
 	return {
 		apply: function(player) {
@@ -16,7 +17,7 @@ Xpr.games.hopPlatform.controlls = function (game) {
 				player.anims.play(Xpr.games.hopPlatform.animations.TURN);
 			}
 
-			if (cursors.up.isDown && player.body.touching.down) {
+			if (spaceBar.isDown && player.body.touching.down) {
 				player.setVelocityY(-380);
 			}
 			else if(cursors.down.isDown && !player.body.touching.down) {
