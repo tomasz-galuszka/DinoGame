@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<script src="//cdn.jsdelivr.net/npm/phaser@3.1.1/dist/phaser.js"></script>
-	<script src="/js/app.js"></script>
-	<script src="/js/modules/assets.js"></script>
-	<script src="/js/modules/animations.js"></script>
-	<script src="/js/modules/controlls.js"></script>
-	<script src="/js/modules/objects.js"></script>
-	<script src="/js/main.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser-ce/2.10.2/phaser.js"></script>
+	<script src="/js/boot.js"></script>
+	<script src="/js/preloader.js"></script>
+	<script src="/js/menu.js"></script>
+	<script src="/js/level1.js"></script>
 </head>
 <body>
 	<script>
-		Xpr.games.hopPlatform.main({
-			initStars: 3,
-			maxStars: 6
-		}).start();
+		window.onload = function() {
+			var game = new Phaser.Game(800, 600, Phaser.CANVAS, '');
+			game.state.add('Boot', Game.Boot);
+			game.state.add('Preloader', Game.Preloader);
+			game.state.add('MainMenu', Game.MainMenu);
+			game.state.add('Level1', Game.Level1);
+
+			game.state.start('Boot');
+		};
 	</script>
 </body>
 </html>
