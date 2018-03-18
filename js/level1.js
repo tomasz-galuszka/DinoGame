@@ -32,6 +32,11 @@ var shootTime = 0;
 var nuts;
 var respawn;
 
+var playerXp = 0;
+var gameXpSteps = 15;
+var playerLevel = 0;
+
+
 Game.Level1.prototype =  {
 
 	create: function(game) {
@@ -43,8 +48,8 @@ Game.Level1.prototype =  {
 
 		map = this.add.tilemap('map');
 		map.addTilesetImage('tileset', 'tiles');
-		map.setCollisionBetween(0, 2);
-		map.setTileIndexCallback(5, this.resetPlayer, this);
+		map.setCollisionBetween(0, 3);
+		map.setTileIndexCallback(5, this.spawn, this);
 		map.setTileIndexCallback(6, this.collectCoin, this);
 
 		layer = map.createLayer('TileLayer1');
@@ -109,6 +114,7 @@ Game.Level1.prototype =  {
 		this.physics.arcade.collide(player, enemy1.bird, this.resetPlayer);
 
 		player.body.velocity.x = 0;
+		playerLevel = Math.log(playerXp, gameXpSteps);
 		
 		if (controlls.right.isDown) {
 			player.animations.play('run');
@@ -158,6 +164,8 @@ Game.Level1.prototype =  {
 
 	collectCoin: function() {
 		map.putTile(-1, layer.getTileX(player.x), layer.getTileY(player.y));
+
+		playerXp += 15;
 	},
 
 	shootNut: function() {
@@ -170,6 +178,8 @@ Game.Level1.prototype =  {
 				nut.body.velocity.y = -600;
 
 				shootTime = this.time.now + 900;
+
+				playerXp += 15;
 			}
 		}
 	}
