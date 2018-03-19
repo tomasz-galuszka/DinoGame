@@ -24,7 +24,7 @@ var map = null;
 var layer;
 var player;
 var controlls = {};
-var playerSpeed = 250;
+var playerSpeed = 150;
 var jumpTimer = 0;
 var button;
 var drag;
@@ -49,8 +49,10 @@ Game.Level1.prototype =  {
 		map = this.add.tilemap('map');
 		map.addTilesetImage('tileset', 'tiles');
 		map.setCollisionBetween(0, 3);
-		map.setTileIndexCallback(5, this.spawn, this);
-		map.setTileIndexCallback(6, this.collectCoin, this);
+
+		map.setTileIndexCallback(6, this.spawn, this);
+		map.setTileIndexCallback(7, this.collectCoin, this);
+		map.setTileIndexCallback(9, this.speedPowerUp, this);
 
 		layer = map.createLayer('TileLayer1');
 		layer.resizeWorld(); 
@@ -182,6 +184,18 @@ Game.Level1.prototype =  {
 				playerXp += 15;
 			}
 		}
+	},
+
+
+	speedPowerUp: function() {
+		map.putTile(-1, layer.getTileX(player.x), layer.getTileY(player.y));
+
+		playerSpeed += 50;
+
+		this.time.events.add(Phaser.Timer.SECOND * 2, function() {
+			playerSpeed -= 50;
+		});
+
 	}
 
 };

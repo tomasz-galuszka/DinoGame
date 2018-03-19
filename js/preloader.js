@@ -20,7 +20,7 @@ Game.Preloader.prototype = {
 		// LOAD ALL ASSETS
 		this.load.tilemap('map', 'assets/level1.json', null, Phaser.Tilemap.TILED_JSON);
 
-		this.load.image('tiles', 'assets/tiles_new.png');
+		this.load.image('tiles', 'assets/tiles.png');
 
 		this.load.image('drag', 'assets/drag.png');
 
