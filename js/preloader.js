@@ -7,6 +7,7 @@ Game.Preloader = function(game) {
 Game.Preloader.prototype = {
 
 	preload: function() {
+		this.stage.backgroundColor = '#000';
 
 		this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloadBar');
 
@@ -15,6 +16,7 @@ Game.Preloader.prototype = {
 		this.time.advanceTiming = true;
 
 		this.load.setPreloadSprite(this.preloadBar);
+		// debugger;
 
 
 		// LOAD ALL ASSETS

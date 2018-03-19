@@ -32,10 +32,12 @@ var button;
 var shootTime = 0;
 var nuts;
 var respawn;
+var lifesText;
 
 var playerXp = 0;
 var gameXpSteps = 15;
 var playerLevel = 0;
+var playerLifes = 3;
 
 
 Game.Level1.prototype =  {
@@ -45,7 +47,8 @@ Game.Level1.prototype =  {
 
 		this.physics.arcade.gravity.y = 1400;
 
-		respawn = game.add.group();
+		lifesText = this.add.text(70, 40, 'Lifes: ' + playerLifes, {font: 'bold 16px Arial', fill: '#fff'});
+		lifesText.fixedToCamera = true;
 
 		map = this.add.tilemap('map');
 		map.addTilesetImage('tileset', 'tiles');
@@ -69,6 +72,8 @@ Game.Level1.prototype =  {
 		player.body.collideWorldsBounds = true;
 
 		this.camera.follow(player);
+
+		respawn = game.add.group();
 
 		map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
 
@@ -98,7 +103,6 @@ Game.Level1.prototype =  {
 
 		nuts.setAll('outOfBoundsKill', true);
 		nuts.setAll('checkWorldBounds', true);
-
 	},
 
 	update: function() {
@@ -146,7 +150,15 @@ Game.Level1.prototype =  {
 	},
 
 	spawn: function() {
+		playerLifes -= 1;
+		
+		if (playerLifes <= 0) {
+			lifesText.setText('GAME OVER ');
+			player.kill();
+			return;
+		}
 
+		lifesText.setText('Lifes: ' + playerLifes);
 		respawn.forEach(function(spawnPoint) {
 
 			player.reset(spawnPoint.x, spawnPoint.y);
