@@ -5,6 +5,7 @@ EnemyBird = function(index, game, x, y) {
 	this.bird.name = index.toString();
 
 	game.physics.arcade.enable(this.bird, Phaser.Physics.ARCADE);
+
 	this.bird.body.immovabe = true;
 	this.bird.body.collideWorldsBounds = true;
 	this.bird.body.allowGravity = false;  
@@ -16,6 +17,7 @@ EnemyBird = function(index, game, x, y) {
 };
 
 var enemy1; 
+var enemy2;
 
 Game.Level1 = function(game) {
 };
@@ -27,7 +29,6 @@ var controlls = {};
 var playerSpeed = 150;
 var jumpTimer = 0;
 var button;
-var drag;
 var shootTime = 0;
 var nuts;
 var respawn;
@@ -70,8 +71,8 @@ Game.Level1.prototype =  {
 		this.camera.follow(player);
 
 		map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
-		this.spawn();
 
+		this.spawn();
 
 		controlls = {
 			right: this.input.keyboard.addKey(Phaser.Keyboard.D),
@@ -80,19 +81,8 @@ Game.Level1.prototype =  {
 			shoot: this.input.keyboard.addKey(Phaser.Keyboard.UP)
 		};
 
-		button = this.add.button(this.world.centerX - 95, this.world.centerY + 200, 'buttons', function() {
-			
-			console.log('Pressed');
-
-		}, this, 2, 1, 0);
-		button.fixedToCamera = true;
-
-		drag = this.add.sprite(player.x, player.y, 'drag');
-		drag.anchor.setTo(0.5, 0.5);
-		drag.inputEnabled = true;
-		drag.input.enableDrag(true);
-
 		enemy1 = new EnemyBird(0, game, player.x + 400, player.y - 200);
+		enemy2 = new EnemyBird(1, game, player.x + 800, player.y - 200);
 
 		nuts = game.add.group();
 
@@ -113,7 +103,8 @@ Game.Level1.prototype =  {
 
 	update: function() {
 		this.physics.arcade.collide(player, layer);
-		this.physics.arcade.collide(player, enemy1.bird, this.resetPlayer);
+		this.physics.arcade.collide(player, enemy1.bird, this.spawn);
+		this.physics.arcade.collide(player, enemy2.bird, this.spawn);
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -148,10 +139,10 @@ Game.Level1.prototype =  {
 			enemy1.bird.kill();
 		}
 
-	},
+		if (checkOverlap(nuts, enemy2.bird)) {
+			enemy2.bird.kill();
+		}
 
-	resetPlayer: function() {
-		player.reset(100, 560);
 	},
 
 	spawn: function() {
@@ -185,7 +176,6 @@ Game.Level1.prototype =  {
 			}
 		}
 	},
-
 
 	speedPowerUp: function() {
 		map.putTile(-1, layer.getTileX(player.x), layer.getTileY(player.y));
