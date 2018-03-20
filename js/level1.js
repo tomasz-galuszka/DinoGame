@@ -34,6 +34,7 @@ var nuts;
 var respawn;
 var lifesText;
 var heart;
+var exitDoor;
 
 var playerXp = 0;
 var gameXpSteps = 15;
@@ -110,15 +111,23 @@ Game.Level1.prototype =  {
 		
 		this.physics.arcade.enable(heart);
 		heart.body.setSize(32,32);
+
+		exitDoor = this.add.sprite(1155, 64, 'secret_door');
+		this.physics.arcade.enable(exitDoor);
+
+		console.log(this.world.width);
 	},
 
 	update: function() {
 		this.physics.arcade.collide(player, layer);
 		this.physics.arcade.collide(heart, layer);
+		this.physics.arcade.collide(exitDoor, layer);
+
 		this.physics.arcade.collide(player, enemy1.bird, this.spawn);
 		this.physics.arcade.collide(player, enemy2.bird, this.spawn);
 
 		this.physics.arcade.overlap(player, heart, this.addLife);
+		this.physics.arcade.overlap(player, exitDoor, this.finishLevel);
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -227,6 +236,12 @@ Game.Level1.prototype =  {
 		playerLifes += 1;
 
 		lifesText.setText('Lifes: ' + playerLifes);
+	},
+
+	finishLevel: function(player, exitDoor) {
+		player.kill();
+
+		lifesText.setText('You won this game !!');		
 	}
 
 };
