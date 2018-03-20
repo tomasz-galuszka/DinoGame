@@ -34,6 +34,8 @@ Game.Preloader.prototype = {
 
 		this.load.image('button', 'assets/menu_button.png');
 
+		this.load.image('heart', 'assets/heart.png');
+
 		this.load.spritesheet('player', 'assets/player.png', 24, 26);
 
 		this.load.spritesheet('buttons', 'assets/buttons.png', 193, 71);

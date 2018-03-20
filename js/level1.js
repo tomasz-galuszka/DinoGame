@@ -33,6 +33,7 @@ var shootTime = 0;
 var nuts;
 var respawn;
 var lifesText;
+var heart;
 
 var playerXp = 0;
 var gameXpSteps = 15;
@@ -83,7 +84,8 @@ Game.Level1.prototype =  {
 			right: this.input.keyboard.addKey(Phaser.Keyboard.D),
 			left: this.input.keyboard.addKey(Phaser.Keyboard.A),
 			up: this.input.keyboard.addKey(Phaser.Keyboard.W),
-			shoot: this.input.keyboard.addKey(Phaser.Keyboard.UP)
+			shootUp: this.input.keyboard.addKey(Phaser.Keyboard.UP),
+			shootRight: this.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 		};
 
 		enemy1 = new EnemyBird(0, game, player.x + 400, player.y - 200);
@@ -103,12 +105,20 @@ Game.Level1.prototype =  {
 
 		nuts.setAll('outOfBoundsKill', true);
 		nuts.setAll('checkWorldBounds', true);
+
+		heart = this.add.sprite(750, 450, 'heart');
+		
+		this.physics.arcade.enable(heart);
+		heart.body.setSize(32,32);
 	},
 
 	update: function() {
 		this.physics.arcade.collide(player, layer);
+		this.physics.arcade.collide(heart, layer);
 		this.physics.arcade.collide(player, enemy1.bird, this.spawn);
 		this.physics.arcade.collide(player, enemy2.bird, this.spawn);
+
+		this.physics.arcade.overlap(player, heart, this.addLife);
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -135,8 +145,12 @@ Game.Level1.prototype =  {
 			player.animations.play('idle');
 		}
 
-		if (controlls.shoot.isDown) {
-			this.shootNut();
+		if (controlls.shootUp.isDown) {
+			this.shootNut('up');
+		}
+
+		if (controlls.shootRight.isDown) {
+			this.shootNut('right');
 		}
 
 		if (checkOverlap(nuts, enemy1.bird)) {
@@ -173,14 +187,21 @@ Game.Level1.prototype =  {
 		playerXp += 15;
 	},
 
-	shootNut: function() {
+	shootNut: function(direction) {
 		if (this.time.now > shootTime) {
 			
 			var nut = nuts.getFirstExists(false);		
 
 			if (nut) {
 				nut.reset(player.x, player.y);
-				nut.body.velocity.y = -600;
+
+				if (direction === 'up') {
+					nut.body.velocity.y = -600;
+				}
+				else if (direction == 'right') {
+					nut.body.velocity.y = -300;
+					nut.body.velocity.x = 300;
+				}
 
 				shootTime = this.time.now + 900;
 
@@ -198,6 +219,14 @@ Game.Level1.prototype =  {
 			playerSpeed -= 50;
 		});
 
+	},
+
+	addLife: function(player, heart) {
+		heart.kill();
+
+		playerLifes += 1;
+
+		lifesText.setText('Lifes: ' + playerLifes);
 	}
 
 };
