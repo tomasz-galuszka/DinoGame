@@ -20,10 +20,12 @@ var enemy1;
 var enemy2;
 
 Game.Level1 = function(game) {
+	this._game = game;
+
+	this.map = null;
+	this.layer = null;
 };
 
-var map = null;
-var layer;
 var player;
 var controlls = {};
 var playerSpeed = 150;
@@ -43,56 +45,56 @@ var extraLifes = 1;
 
 Game.Level1.prototype =  {
 
-	create: function(game) {
-		this.stage.backgroundColor = '#3A5963';
-		this.physics.arcade.gravity.y = 1400;
+	create: function(_game) {
+		_game.stage.backgroundColor = '#3A5963';
+		_game.physics.arcade.gravity.y = 1400;
 
-		lifesText = this.add.text(70, 40, 'Lifes: ' + playerLifes, {font: 'bold 16px Arial', fill: '#fff'});
+		lifesText = _game.add.text(70, 40, 'Lifes: ' + playerLifes, {font: 'bold 16px Arial', fill: '#fff'});
 		lifesText.fixedToCamera = true;
 
-		map = this.add.tilemap('map');
-		map.addTilesetImage('tileset', 'tiles');
-		map.setCollisionBetween(0, 3);
+		this.map = _game.add.tilemap('map');
+		this.map.addTilesetImage('tileset', 'tiles');
+		this.map.setCollisionBetween(0, 3);
 
-		map.setTileIndexCallback(6, this.spawn, this);
-		map.setTileIndexCallback(7, this.collectCoin, this);
-		map.setTileIndexCallback(9, this.speedPowerUp, this);
-		map.setTileIndexCallback(10, this.finishLevel, this);
-		map.setTileIndexCallback(11, this.addLife, this);
+		this.map.setTileIndexCallback(6, this.spawn.bind(this), _game);
+		this.map.setTileIndexCallback(7, this.collectCoin.bind(this), _game);
+		this.map.setTileIndexCallback(9, this.speedPowerUp.bind(this), _game);
+		this.map.setTileIndexCallback(10, this.finishLevel.bind(this), _game);
+		this.map.setTileIndexCallback(11, this.addLife.bind(this), _game);
 
-		layer = map.createLayer('Tile Layer 1');
-		layer.resizeWorld(); 
+		this.layer = this.map.createLayer('Tile Layer 1');
+		this.layer.resizeWorld(); 
 
-		player = this.add.sprite(0, 0, 'player');
+		player = _game.add.sprite(0, 0, 'player');
 		player.anchor.setTo(0.5, 0.5);
 		player.animations.add('idle', [0,1], 1, true);
 		player.animations.add('jump', [2], 1, true);
 		player.animations.add('run', [3,4,5,6,7,8], 7, true);
 		
-		this.physics.arcade.enable(player);
+		_game.physics.arcade.enable(player);
 
 		player.body.collideWorldsBounds = true;
 
-		this.camera.follow(player);
+		_game.camera.follow(player);
 
-		respawn = game.add.group();
+		respawn = _game.add.group();
 
-		map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
+		this.map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
 
 		this.spawn();
 
 		controlls = {
-			right: this.input.keyboard.addKey(Phaser.Keyboard.D),
-			left: this.input.keyboard.addKey(Phaser.Keyboard.A),
-			up: this.input.keyboard.addKey(Phaser.Keyboard.W),
-			shootUp: this.input.keyboard.addKey(Phaser.Keyboard.UP),
-			shootRight: this.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
+			right: _game.input.keyboard.addKey(Phaser.Keyboard.D),
+			left: _game.input.keyboard.addKey(Phaser.Keyboard.A),
+			up: _game.input.keyboard.addKey(Phaser.Keyboard.W),
+			shootUp: _game.input.keyboard.addKey(Phaser.Keyboard.UP),
+			shootRight: _game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 		};
 
-		enemy1 = new EnemyBird(0, game, player.x + 400, player.y - 200);
-		enemy2 = new EnemyBird(1, game, player.x + 800, player.y - 200);
+		enemy1 = new EnemyBird(0, _game, player.x + 400, player.y - 200);
+		enemy2 = new EnemyBird(1, _game, player.x + 800, player.y - 200);
 
-		nuts = game.add.group();
+		nuts = _game.add.group();
 
 		nuts.enableBody = true;
 		nuts.physicsBodyType = Phaser.Physics.ARCADE;
@@ -108,11 +110,11 @@ Game.Level1.prototype =  {
 		nuts.setAll('checkWorldBounds', true);
 	},
 
-	update: function() {
-		this.physics.arcade.collide(player, layer);
+	update: function(_game) {
+		_game.physics.arcade.collide(player, this.layer);
 
-		this.physics.arcade.collide(player, enemy1.bird, this.spawn);
-		this.physics.arcade.collide(player, enemy2.bird, this.spawn);
+		_game.physics.arcade.collide(player, enemy1.bird, this.spawn);
+		_game.physics.arcade.collide(player, enemy2.bird, this.spawn);
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -129,10 +131,10 @@ Game.Level1.prototype =  {
 			player.body.velocity.x -= playerSpeed;
 		}
 
-		if (controlls.up.isDown && (player.body.onFloor() || player.body.touching.down) && this.time.now > jumpTimer) {
+		if (controlls.up.isDown && (player.body.onFloor() || player.body.touching.down) && _game.time.now > jumpTimer) {
 			player.animations.play('jump');
 			player.body.velocity.y = -600;
-			jumpTimer = this.time.now + 750;
+			jumpTimer = _game.time.now + 750;
 		}
 
 		if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
@@ -140,11 +142,11 @@ Game.Level1.prototype =  {
 		}
 
 		if (controlls.shootUp.isDown) {
-			this.shootNut('up');
+			this.shootNut('up', _game);
 		}
 
 		if (controlls.shootRight.isDown) {
-			this.shootNut('right');
+			this.shootNut('right',_game);
 		}
 
 		if (checkOverlap(nuts, enemy1.bird)) {
@@ -171,18 +173,18 @@ Game.Level1.prototype =  {
 
 			player.reset(spawnPoint.x, spawnPoint.y);
 
-		}, this);
+		}, this._game);
 
 	},
 
 	collectCoin: function() {
-		map.putTile(-1, layer.getTileX(player.x), layer.getTileY(player.y));
+		this.map.putTile(-1, this.layer.getTileX(player.x), this.layer.getTileY(player.y));
 
 		playerXp += 15;
 	},
 
 	shootNut: function(direction) {
-		if (this.time.now > shootTime) {
+		if (this._game.time.now > shootTime) {
 			
 			var nut = nuts.getFirstExists(false);		
 
@@ -197,7 +199,7 @@ Game.Level1.prototype =  {
 					nut.body.velocity.x = 300;
 				}
 
-				shootTime = this.time.now + 900;
+				shootTime = this._game.time.now + 900;
 
 				playerXp += 15;
 			}
@@ -205,18 +207,18 @@ Game.Level1.prototype =  {
 	},
 
 	speedPowerUp: function() {
-		map.putTile(-1, layer.getTileX(player.x), layer.getTileY(player.y));
+		this.map.putTile(-1, this.layer.getTileX(player.x), this.layer.getTileY(player.y));
 
 		playerSpeed += 50;
 
-		this.time.events.add(Phaser.Timer.SECOND * 2, function() {
+		this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
 			playerSpeed -= 50;
 		});
 
 	},
 
 	addLife: function(player) {
-		map.putTile(-1, layer.getTileX(player.x + 12), layer.getTileY(player.y));
+		this.map.putTile(-1, this.layer.getTileX(player.x + 12), this.layer.getTileY(player.y));
 
 		if (extraLifes > 0) {
 			playerLifes += 1;
