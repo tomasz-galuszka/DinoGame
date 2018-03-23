@@ -33,20 +33,18 @@ var shootTime = 0;
 var nuts;
 var respawn;
 var lifesText;
-var heart;
-var exitDoor;
 
 var playerXp = 0;
 var gameXpSteps = 15;
 var playerLevel = 0;
 var playerLifes = 3;
+var extraLifes = 1;
 
 
 Game.Level1.prototype =  {
 
 	create: function(game) {
 		this.stage.backgroundColor = '#3A5963';
-
 		this.physics.arcade.gravity.y = 1400;
 
 		lifesText = this.add.text(70, 40, 'Lifes: ' + playerLifes, {font: 'bold 16px Arial', fill: '#fff'});
@@ -59,8 +57,10 @@ Game.Level1.prototype =  {
 		map.setTileIndexCallback(6, this.spawn, this);
 		map.setTileIndexCallback(7, this.collectCoin, this);
 		map.setTileIndexCallback(9, this.speedPowerUp, this);
+		map.setTileIndexCallback(10, this.finishLevel, this);
+		map.setTileIndexCallback(11, this.addLife, this);
 
-		layer = map.createLayer('TileLayer1');
+		layer = map.createLayer('Tile Layer 1');
 		layer.resizeWorld(); 
 
 		player = this.add.sprite(0, 0, 'player');
@@ -106,28 +106,13 @@ Game.Level1.prototype =  {
 
 		nuts.setAll('outOfBoundsKill', true);
 		nuts.setAll('checkWorldBounds', true);
-
-		heart = this.add.sprite(750, 450, 'heart');
-		
-		this.physics.arcade.enable(heart);
-		heart.body.setSize(32,32);
-
-		exitDoor = this.add.sprite(1155, 64, 'secret_door');
-		this.physics.arcade.enable(exitDoor);
-
-		console.log(this.world.width);
 	},
 
 	update: function() {
 		this.physics.arcade.collide(player, layer);
-		this.physics.arcade.collide(heart, layer);
-		this.physics.arcade.collide(exitDoor, layer);
 
 		this.physics.arcade.collide(player, enemy1.bird, this.spawn);
 		this.physics.arcade.collide(player, enemy2.bird, this.spawn);
-
-		this.physics.arcade.overlap(player, heart, this.addLife);
-		this.physics.arcade.overlap(player, exitDoor, this.finishLevel);
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -230,18 +215,21 @@ Game.Level1.prototype =  {
 
 	},
 
-	addLife: function(player, heart) {
-		heart.kill();
+	addLife: function(player) {
+		map.putTile(-1, layer.getTileX(player.x + 12), layer.getTileY(player.y));
 
-		playerLifes += 1;
+		if (extraLifes > 0) {
+			playerLifes += 1;
+			extraLifes -= 1;
+		}
 
 		lifesText.setText('Lifes: ' + playerLifes);
 	},
 
-	finishLevel: function(player, exitDoor) {
+	finishLevel: function() {
 		player.kill();
 
-		lifesText.setText('You won this game !!');		
+		lifesText.setText('You won this game !!');
 	}
 
 };
