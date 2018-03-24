@@ -22,7 +22,7 @@ Game.Level1 = function(game) {
 	var speedTimer = 0;
 
 	// constructor functions
-	var createMap = function() {
+	var constructMap = function() {
 		var map = this._game.add.tilemap('map');
 		map.addTilesetImage('tileset', 'tiles');
 		map.setCollisionBetween(0, 4, true);
@@ -34,14 +34,14 @@ Game.Level1 = function(game) {
 		this.map = map;
 	};
 
-	var createLayer = function() {
+	var constructLayer = function() {
 		var layer = this.map.createLayer('Tile Layer 1');
 		layer.resizeWorld(); 
 
 		this.layer = layer;
 	};
 
-	var createPlayer = function() {
+	var constructPlayer = function() {
 		var player = this._game.add.sprite(0, 0, 'player');
 		player.anchor.setTo(0.5, 0.5);
 		player.animations.add('idle', [0,1], 1, true);
@@ -59,7 +59,7 @@ Game.Level1 = function(game) {
 		this.player.lifes = playerLifes;
 	};
 
-	var createNuts = function() {
+	var constructNuts = function() {
 		var nuts = this._game.add.group();
 
 		nuts.enableBody = true;
@@ -76,7 +76,7 @@ Game.Level1 = function(game) {
 		this.nuts = nuts;
 	};
 
-	var createLifeBar = function() {
+	var constructLifeBar = function() {
 		var lifesText = this._game.add.text(70, 40, 'Lifes: ' + this.player.lifes, {font: 'bold 16px Arial', fill: '#fff'});
 		lifesText.fixedToCamera = true;
 
@@ -84,14 +84,14 @@ Game.Level1 = function(game) {
 		console.log('x');
 	};
 
-	var createRespawnPoint = function() {
+	var constructRespawnPoint = function() {
 
 		this.respawn = this._game.add.group();
 
 		this.map.createFromObjects('Object Layer 1', 8, '', 0, true, false, this.respawn);
 	};
 
-	var createTraps = function() {
+	var constructTraps = function() {
 
 		var traps = this._game.add.group();
 
@@ -108,13 +108,14 @@ Game.Level1 = function(game) {
 		this.traps = traps;
 	};
 
-	var createEnemies = function() {
+	var constructEnemies = function() {
 		this.enemy1 = new Game.EnemyBird(0, this._game, this.player.x + 400, this.player.y - 200);
 		this.enemy2 = new Game.EnemyBird(1, this._game, this.player.x + 800, this.player.y - 200);
 	};
 
 
-	this.init = function() {
+	this.initialiseGame = function() {
+
 		this._game.stage.backgroundColor = '#3A5963';
 		this._game.physics.arcade.gravity.y = 1400;
 
@@ -126,23 +127,23 @@ Game.Level1 = function(game) {
 			shootRight: this._game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
 		}
 
-		createMap.call(this);
+		constructMap.call(this);
 
-		createLayer.call(this);
+		constructLayer.call(this);
 
-		createPlayer.call(this);
+		constructPlayer.call(this);
 
-		createLifeBar.call(this);
+		constructLifeBar.call(this);
 
-		createRespawnPoint.call(this);
+		constructRespawnPoint.call(this);
 
-		createTraps.call(this);
+		constructTraps.call(this);
 
-		createNuts.call(this);
+		constructNuts.call(this);
 
 		this.spawn.call(this);
 
-		createEnemies.call(this);
+		constructEnemies.call(this);
 	},
 
 	this.configureCollisions =  function() {
@@ -235,7 +236,7 @@ Game.Level1 = function(game) {
 Game.Level1.prototype =  {
 
 	create: function(_game) {
-		this.init();
+		this.initialiseGame();
 	},
 
 	update: function(_game) {
@@ -247,7 +248,6 @@ Game.Level1.prototype =  {
 		this.configureControlls();
 
 	},
-
 
 	spawn: function() {
 		this.player.lifes -= 1;
