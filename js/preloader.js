@@ -1,58 +1,52 @@
-Game.Preloader = function(game) {
+Game.Preloader = function () {
 
-	this.preloadBar = null;
+    this.preloadBar = null;
 
 };
 
 Game.Preloader.prototype = {
 
-	preload: function() {
-		// modify tiled maps
-		// TODO
+    preload: function () {
 
+        this.stage.backgroundColor = '#000';
 
+        this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloadBar');
 
-		this.stage.backgroundColor = '#000';
+        this.preloadBar.anchor.setTo(0.5, 0.5);
 
-		this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloadBar');
+        this.time.advanceTiming = true;
 
-		this.preloadBar.anchor.setTo(0.5, 0.5);
+        this.load.setPreloadSprite(this.preloadBar);
 
-		this.time.advanceTiming = true;
+        // LOAD ALL ASSETS
+        this.load.tilemap('map', 'assets/level1.json', null, Phaser.Tilemap.TILED_JSON);
 
-		this.load.setPreloadSprite(this.preloadBar);
-		// debugger;
+        this.load.image('tiles', 'assets/tiles.png');
 
+        this.load.image('drag', 'assets/drag.png');
 
-		// LOAD ALL ASSETS
-		this.load.tilemap('map', 'assets/level1.json', null, Phaser.Tilemap.TILED_JSON);
+        this.load.image('bird', 'assets/bird.png');
 
-		this.load.image('tiles', 'assets/tiles.png');
+        this.load.image('nut', 'assets/nut.png');
 
-		this.load.image('drag', 'assets/drag.png');
+        this.load.image('trap', 'assets/trap.png');
 
-		this.load.image('bird', 'assets/bird.png');
+        this.load.image('tilescreen', 'assets/menu_background.png');
 
-		this.load.image('nut', 'assets/nut.png');
+        this.load.image('button', 'assets/menu_button.png');
 
-		this.load.image('trap', 'assets/trap.png');
+        this.load.image('heart', 'assets/heart.png');
 
-		this.load.image('tilescreen', 'assets/menu_background.png');
+        this.load.image('secret_door', 'assets/secret-door.png');
 
-		this.load.image('button', 'assets/menu_button.png');
+        this.load.spritesheet('player', 'assets/player.png', 24, 26);
 
-		this.load.image('heart', 'assets/heart.png');
-		
-		this.load.image('secret_door', 'assets/secret-door.png');
+        this.load.spritesheet('buttons', 'assets/buttons.png', 193, 71);
+    },
 
-		this.load.spritesheet('player', 'assets/player.png', 24, 26);
-
-		this.load.spritesheet('buttons', 'assets/buttons.png', 193, 71);
-	},
-
-	create: function() {
-		this.state.start('MainMenu');
-	}
+    create: function () {
+        this.state.start('MainMenu');
+    }
 
 };
 
