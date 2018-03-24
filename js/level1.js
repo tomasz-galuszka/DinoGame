@@ -35,6 +35,7 @@ var shootTime = 0;
 var nuts;
 var respawn;
 var lifesText;
+var gameStateText;
 var traps;
 
 var playerXp = 0;
@@ -125,9 +126,9 @@ Game.Level1.prototype =  {
 		_game.physics.arcade.collide(player, this.layer);
 		_game.physics.arcade.collide(traps, this.layer);
 
-		_game.physics.arcade.collide(player, enemy1.bird, this.spawn);
-		_game.physics.arcade.collide(player, enemy2.bird, this.spawn);
-		_game.physics.arcade.collide(player, traps, this.spawn);
+		_game.physics.arcade.collide(player, enemy1.bird, this.spawn.bind(this));
+		_game.physics.arcade.collide(player, enemy2.bird, this.spawn.bind(this));
+		_game.physics.arcade.collide(player, traps, this.spawn.bind(this));
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -174,14 +175,21 @@ Game.Level1.prototype =  {
 
 	spawn: function() {
 		playerLifes -= 1;
-		
+	
+		lifesText.setText('Lifes: ' + playerLifes);
+
 		if (playerLifes <= 0) {
-			lifesText.setText('GAME OVER ');
+			gameStateText = this._game.add.text(player.x,
+			   this._game.world.centerY,
+			   'GAME OVER',
+			   {font: 'bold 16px Arial', fill: '#fff'}
+			);
+			
 			player.kill();
+			
 			return;
 		}
 
-		lifesText.setText('Lifes: ' + playerLifes);
 		respawn.forEach(function(spawnPoint) {
 
 			player.reset(spawnPoint.x, spawnPoint.y);
@@ -231,7 +239,10 @@ Game.Level1.prototype =  {
 	},
 
 	addLife: function(player) {
-		this.map.putTile(-1, this.layer.getTileX(player.x + 12), this.layer.getTileY(player.y));
+		var playerX = this.layer.getTileX(player.x + 12);
+		var playerY = this.layer.getTileY(player.y)
+
+		this.map.putTile(-1, playerX, playerY);
 
 		if (extraLifes > 0) {
 			playerLifes += 1;
@@ -242,9 +253,13 @@ Game.Level1.prototype =  {
 	},
 
 	finishLevel: function() {
-		player.kill();
+		gameStateText = this._game.add.text(player.x,
+		   this._game.world.centerY,
+		   'Congratulations !!',
+		   {font: 'bold 16px Arial', fill: '#fff'}
+		);
 
-		lifesText.setText('You won this game !!');
+		player.kill();
 	}
 
 };
