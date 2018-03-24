@@ -1,91 +1,100 @@
-EnemyBird = function(index, game, x, y) {
-
-	this.bird = game.add.sprite(x, y, 'bird');
-	this.bird.anchor.setTo(0.5, 0.5);
-	this.bird.name = index.toString();
-
-	game.physics.arcade.enable(this.bird, Phaser.Physics.ARCADE);
-
-	this.bird.body.immovabe = true;
-	this.bird.body.collideWorldsBounds = true;
-	this.bird.body.allowGravity = false;  
-
-	this.birdTween = game.add.tween(this.bird).to({
-		y: this.bird.y + 100
-	}, 2000, 'Linear', true, 0, 100, true);
-
-};
-
-var enemy1; 
-var enemy2;
-
 Game.Level1 = function(game) {
+
 	this._game = game;
+	this.controlls = null;
 
+	// game objects 
 	this.map = null;
-	this.layer = null;
-};
+	this.player = null;
+	this.nuts = null;
+	this.lifesText = null;
+	this.respawn = null;
+	this.traps = null;
+	this.enemy1 = null;
+	this.enemy2 = null;
 
-var player;
-var controlls = {};
-var playerSpeed = 170;
-var jumpTimer = 0;
-var speedTimer = 0;
-var button;
-var shootTime = 0;
-var speedTime = 0;
-var nuts;
-var respawn;
-var lifesText;
-var gameStateText;
-var traps;
+	// settings
+	var playerSpeed = 200;
+	var playerLifes = 3;
+	var extraLifes = 1;
+	var jumpTimer = 0;
+	var shootTimer = 0;
+	var speedTimer = 0;
 
-var playerXp = 0;
-var gameXpSteps = 15;
-var playerLevel = 0;
-var playerLifes = 3;
-var extraLifes = 1;
+	// constructor functions
+	var createMap = function() {
+		var map = this._game.add.tilemap('map');
+		map.addTilesetImage('tileset', 'tiles');
+		map.setCollisionBetween(0, 4, true);
+		map.setTileIndexCallback(7, this.collectCoin.bind(this), this._game);
+		map.setTileIndexCallback(9, this.speedPowerUp.bind(this), this._game);
+		map.setTileIndexCallback(10, this.finishLevel.bind(this), this._game);
+		map.setTileIndexCallback(11, this.addLife.bind(this), this._game);
 
-Game.Level1.prototype =  {
+		this.map = map;
+	};
 
-	create: function(_game) {
-		_game.stage.backgroundColor = '#3A5963';
-		_game.physics.arcade.gravity.y = 1400;
+	var createLayer = function() {
+		var layer = this.map.createLayer('Tile Layer 1');
+		layer.resizeWorld(); 
 
-		lifesText = _game.add.text(70, 40, 'Lifes: ' + playerLifes, {font: 'bold 16px Arial', fill: '#fff'});
-		lifesText.fixedToCamera = true;
+		this.layer = layer;
+	};
 
-		this.map = _game.add.tilemap('map');
-		this.map.addTilesetImage('tileset', 'tiles');
-		this.map.setCollisionBetween(0, 4, true);
-
-		this.map.setTileIndexCallback(7, this.collectCoin.bind(this), _game);
-		this.map.setTileIndexCallback(9, this.speedPowerUp.bind(this), _game);
-		this.map.setTileIndexCallback(10, this.finishLevel.bind(this), _game);
-		this.map.setTileIndexCallback(11, this.addLife.bind(this), _game);
-
-		this.layer = this.map.createLayer('Tile Layer 1');
-		this.layer.resizeWorld(); 
-
-		player = _game.add.sprite(0, 0, 'player');
+	var createPlayer = function() {
+		var player = this._game.add.sprite(0, 0, 'player');
 		player.anchor.setTo(0.5, 0.5);
 		player.animations.add('idle', [0,1], 1, true);
 		player.animations.add('jump', [2], 1, true);
 		player.animations.add('run', [3,4,5,6,7,8], 7, true);
 		
-		_game.physics.arcade.enable(player);
+		this._game.physics.arcade.enable(player);
 
 		player.body.collideWorldsBounds = true;
 
-		_game.camera.follow(player);
+		this._game.camera.follow(player);
 
-		respawn = _game.add.group();
+		this.player = player;
+		this.player.speed = playerSpeed;
+		this.player.lifes = playerLifes;
+	};
 
-		this.map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
+	var createNuts = function() {
+		var nuts = this._game.add.group();
 
-		this.spawn();
+		nuts.enableBody = true;
+		nuts.physicsBodyType = Phaser.Physics.ARCADE;
 
-		traps = _game.add.group();
+		nuts.createMultiple(5, 'nut');
+		nuts.setAll('anchor.x', 0.5);
+		nuts.setAll('anchor.y', 0.5);
+		nuts.setAll('scale.x', 0.5);
+		nuts.setAll('scale.y', 0.5);
+		nuts.setAll('outOfBoundsKill', true);
+		nuts.setAll('checkWorldBounds', true);
+
+		this.nuts = nuts;
+	};
+
+	var createLifeBar = function() {
+		var lifesText = this._game.add.text(70, 40, 'Lifes: ' + this.player.lifes, {font: 'bold 16px Arial', fill: '#fff'});
+		lifesText.fixedToCamera = true;
+
+		this.lifesText = lifesText;
+		console.log('x');
+	};
+
+	var createRespawnPoint = function() {
+
+		this.respawn = this._game.add.group();
+
+		this.map.createFromObjects('Object Layer 1', 8, '', 0, true, false, this.respawn);
+	};
+
+	var createTraps = function() {
+
+		var traps = this._game.add.group();
+
 		traps.enableBody = true;
 
 		this.map.createFromObjects('Traps', 6, 'trap', 0, true, false, traps);
@@ -94,162 +103,223 @@ Game.Level1.prototype =  {
 			trap.body.immovable = true;
 			trap.scale.x = 0.8;
 			trap.scale.y = 0.8;
-		}, this._game);
+		});
 
-		controlls = {
-			right: _game.input.keyboard.addKey(Phaser.Keyboard.D),
-			left: _game.input.keyboard.addKey(Phaser.Keyboard.A),
-			up: _game.input.keyboard.addKey(Phaser.Keyboard.W),
-			shootUp: _game.input.keyboard.addKey(Phaser.Keyboard.UP),
-			shootRight: _game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
-		};
+		this.traps = traps;
+	};
 
-		enemy1 = new EnemyBird(0, _game, player.x + 400, player.y - 200);
-		enemy2 = new EnemyBird(1, _game, player.x + 800, player.y - 200);
+	var createEnemies = function() {
+		this.enemy1 = new Game.EnemyBird(0, this._game, this.player.x + 400, this.player.y - 200);
+		this.enemy2 = new Game.EnemyBird(1, this._game, this.player.x + 800, this.player.y - 200);
+	};
 
-		nuts = _game.add.group();
 
-		nuts.enableBody = true;
-		nuts.physicsBodyType = Phaser.Physics.ARCADE;
-		nuts.createMultiple(5, 'nut');
+	this.init = function() {
+		this._game.stage.backgroundColor = '#3A5963';
+		this._game.physics.arcade.gravity.y = 1400;
 
-		nuts.setAll('anchor.x', 0.5);
-		nuts.setAll('anchor.y', 0.5);
+		this.controlls = {
+			right: this._game.input.keyboard.addKey(Phaser.Keyboard.D),
+			left: this._game.input.keyboard.addKey(Phaser.Keyboard.A),
+			up: this._game.input.keyboard.addKey(Phaser.Keyboard.W),
+			shootUp: this._game.input.keyboard.addKey(Phaser.Keyboard.UP),
+			shootRight: this._game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
+		}
 
-		nuts.setAll('scale.x', 0.5);
-		nuts.setAll('scale.y', 0.5);
+		createMap.call(this);
 
-		nuts.setAll('outOfBoundsKill', true);
-		nuts.setAll('checkWorldBounds', true);
+		createLayer.call(this);
+
+		createPlayer.call(this);
+
+		createLifeBar.call(this);
+
+		createRespawnPoint.call(this);
+
+		createTraps.call(this);
+
+		createNuts.call(this);
+
+		this.spawn.call(this);
+
+		createEnemies.call(this);
+	},
+
+	this.configureCollisions =  function() {
+		this._game.physics.arcade.collide(this.player, this.layer);
+		this._game.physics.arcade.collide(this.traps, this.layer);
+
+		this._game.physics.arcade.collide(this.player, this.enemy1.bird, this.spawn.bind(this));
+		this._game.physics.arcade.collide(this.player, this.enemy2.bird, this.spawn.bind(this));
+		this._game.physics.arcade.collide(this.player, this.traps, this.spawn.bind(this));
+	},
+
+	this.configureControlls = function() {
+		if (this.controlls.right.isDown) {
+			this.player.animations.play('run');
+			this.player.scale.setTo(1, 1);
+			this.player.body.velocity.x += this.player.speed;
+		}
+		
+		if (this.controlls.left.isDown) {
+			this.player.animations.play('run');
+			this.player.scale.setTo(-1,1);
+			this.player.body.velocity.x -= this.player.speed;
+		}
+
+		if (this.controlls.up.isDown && (this.player.body.onFloor() || this.player.body.touching.down) && this._game.time.now > this.getJumpTimer()) {
+			this.player.animations.play('jump');
+			this.player.body.velocity.y = -650;
+			this.setJumpTimer(this._game.time.now + 750);
+		}
+
+		if (this.player.body.velocity.x === 0 && this.player.body.velocity.y === 0) {
+			this.player.animations.play('idle');
+		}
+
+		if (this.controlls.shootUp.isDown) {
+			this.shootNut('up', this._game);
+		}
+
+		if (this.controlls.shootRight.isDown) {
+			this.shootNut('right', this._game);
+		}
+
+		if (Game.Utils.checkOverlap(this._game, this.nuts, this.enemy1.bird)) {
+			this.enemy1.bird.kill();
+		}
+
+		if (Game.Utils.checkOverlap(this._game, this.nuts, this.enemy2.bird)) {
+			this.enemy2.bird.kill();
+		}
+	},
+
+	this.updateLifeBanner = function() {
+		this.lifesText.setText('Lifes: ' + this.player.lifes);
+	},
+
+	this.getExtraLifes = function() {
+		return extraLifes;
+	},
+
+	this.decreaseExtraLifes = function() {
+		extraLifes -= 1;
+	},
+
+	this.getJumpTimer = function() {
+		return jumpTimer;
+	},
+
+	this.setJumpTimer = function(time) {
+		jumpTimer = time;
+	},
+
+	this.getShootTimer = function() {
+		return shootTimer;
+	},
+
+	this.setShootTimer = function(time) {
+		shootTimer = time;
+	},
+
+	this.getSpeedTimer = function() {
+		return speedTimer;
+	},
+
+	this.setSpeedTimer = function(time) {
+		speedTimer = time;
+	}
+
+};
+
+Game.Level1.prototype =  {
+
+	create: function(_game) {
+		this.init();
 	},
 
 	update: function(_game) {
-		_game.physics.arcade.collide(player, this.layer);
-		_game.physics.arcade.collide(traps, this.layer);
 
-		_game.physics.arcade.collide(player, enemy1.bird, this.spawn.bind(this));
-		_game.physics.arcade.collide(player, enemy2.bird, this.spawn.bind(this));
-		_game.physics.arcade.collide(player, traps, this.spawn.bind(this));
+		this.configureCollisions();
 
-		player.body.velocity.x = 0;
-		playerLevel = Math.log(playerXp, gameXpSteps);
-		
-		if (controlls.right.isDown) {
-			player.animations.play('run');
-			player.scale.setTo(1, 1);
-			player.body.velocity.x += playerSpeed;
-		}
-		
-		if (controlls.left.isDown) {
-			player.animations.play('run');
-			player.scale.setTo(-1,1);
-			player.body.velocity.x -= playerSpeed;
-		}
+		this.player.body.velocity.x = 0;
 
-		if (controlls.up.isDown && (player.body.onFloor() || player.body.touching.down) && _game.time.now > jumpTimer) {
-			player.animations.play('jump');
-			player.body.velocity.y = -650;
-			jumpTimer = _game.time.now + 750;
-		}
-
-		if (player.body.velocity.x === 0 && player.body.velocity.y === 0) {
-			player.animations.play('idle');
-		}
-
-		if (controlls.shootUp.isDown) {
-			this.shootNut('up', _game);
-		}
-
-		if (controlls.shootRight.isDown) {
-			this.shootNut('right',_game);
-		}
-
-		if (checkOverlap(nuts, enemy1.bird)) {
-			enemy1.bird.kill();
-		}
-
-		if (checkOverlap(nuts, enemy2.bird)) {
-			enemy2.bird.kill();
-		}
+		this.configureControlls();
 
 	},
 
-	spawn: function() {
-		playerLifes -= 1;
-	
-		lifesText.setText('Lifes: ' + playerLifes);
 
-		if (playerLifes <= 0) {
-			gameStateText = this._game.add.text(player.x,
-			   this._game.world.centerY,
-			   'GAME OVER',
-			   {font: 'bold 16px Arial', fill: '#fff'}
-			);
+	spawn: function() {
+		this.player.lifes -= 1;
+
+		this.updateLifeBanner();
+
+		if (this.player.lifes <= 0) {
+
+			Game.Utils.showText(this._game, this.player.x, 'GAME OVER');
 			
-			player.kill();
+			this.player.kill();
 			
 			return;
 		}
 
-		respawn.forEach(function(spawnPoint) {
+		this.respawn.forEach(function(spawnPoint) {
 
-			player.reset(spawnPoint.x, spawnPoint.y);
+			this.player.reset(spawnPoint.x, spawnPoint.y);
 
-		}, this._game);
+		}, this);
 
 	},
 
 	collectCoin: function() {
-		this.map.putTile(-1, this.layer.getTileX(player.x - 10), this.layer.getTileY(player.y));
-
-		playerXp += 15;
+		this.map.putTile(-1, this.layer.getTileX(this.player.x - 10), this.layer.getTileY(this.player.y));
 	},
 
 	shootNut: function(direction) {
-		if (this._game.time.now > shootTime) {
+		if (this._game.time.now > this.getShootTimer()) {
 			
-			var nut = nuts.getFirstExists(false);		
+			var nut = this.nuts.getFirstExists(false);		
 
 			if (nut) {
-				nut.reset(player.x, player.y);
+				nut.reset(this.player.x, this.player.y);
 
 				if (direction === 'up') {
 					nut.body.velocity.y = -600;
 				}
 				else if (direction == 'right') {
-					nut.body.velocity.y = -300;
+					nut.body.velocity.y = -400;
 					nut.body.velocity.x = 300;
 				}
 
-				shootTime = this._game.time.now + 900;
-
-				playerXp += 15;
+				this.setShootTimer(this._game.time.now + 900);
 			}
 		}
 	},
 
 	speedPowerUp: function() {
-		this.map.putTile(-1, this.layer.getTileX(player.x + 10), this.layer.getTileY(player.y));
-		if (this._game.time.now > speedTime) {
+		
+		this.map.putTile(-1, this.layer.getTileX(this.player.x + 10), this.layer.getTileY(this.player.y));
 
-			speedTime = this._game.time.now + 2000;
+		if (this._game.time.now > this.getSpeedTimer()) {
 
-			playerSpeed += 150;
+			this.setSpeedTimer(this._game.time.now + 2000);
 
+			this.player.speed += 100;
 
 			this.resetSpeedEvent = this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
 
-				playerSpeed -= 150;
+				this.player.speed -= 100;
 
-			});
+			}, this);
+
 		} else {
 			this._game.time.events.remove(this.resetSpeedEvent);
-			
+
 			this.resetSpeedEvent = this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
 
-				playerSpeed -= 150;
+				this.player.speed -= 100;
 
-			});
+			}, this);
 		}
 	},
 
@@ -259,29 +329,20 @@ Game.Level1.prototype =  {
 
 		this.map.putTile(-1, playerX, playerY);
 
-		if (extraLifes > 0) {
-			playerLifes += 1;
-			extraLifes -= 1;
+		if (this.getExtraLifes() > 0) {
+			
+			this.player.lifes += 1;
+			
+			this.decreaseExtraLifes();
 		}
 
-		lifesText.setText('Lifes: ' + playerLifes);
+		this.updateLifeBanner();
 	},
 
 	finishLevel: function() {
-		gameStateText = this._game.add.text(player.x,
-		   this._game.world.centerY,
-		   'Congratulations !!',
-		   {font: 'bold 16px Arial', fill: '#fff'}
-		);
+		Game.Utils.showText(this._game, this.player.x, 'Congratulations !');
 
-		player.kill();
+		this.player.kill();
 	}
 
 };
-
-function checkOverlap(spriteA, spriteB) {
-	var boundsA = spriteA.getBounds();
-	var boundsB = spriteB.getBounds();
-
-	return Phaser.Rectangle.intersects(boundsA, boundsB);
-}
