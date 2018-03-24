@@ -28,10 +28,12 @@ Game.Level1 = function(game) {
 
 var player;
 var controlls = {};
-var playerSpeed = 150;
+var playerSpeed = 170;
 var jumpTimer = 0;
+var speedTimer = 0;
 var button;
 var shootTime = 0;
+var speedTime = 0;
 var nuts;
 var respawn;
 var lifesText;
@@ -43,7 +45,6 @@ var gameXpSteps = 15;
 var playerLevel = 0;
 var playerLifes = 3;
 var extraLifes = 1;
-
 
 Game.Level1.prototype =  {
 
@@ -228,14 +229,28 @@ Game.Level1.prototype =  {
 	},
 
 	speedPowerUp: function() {
-		this.map.putTile(-1, this.layer.getTileX(player.x), this.layer.getTileY(player.y));
+		this.map.putTile(-1, this.layer.getTileX(player.x + 10), this.layer.getTileY(player.y));
+		if (this._game.time.now > speedTime) {
 
-		playerSpeed += 30;
+			speedTime = this._game.time.now + 2000;
 
-		this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
-			playerSpeed -= 30;
-		});
+			playerSpeed += 150;
 
+
+			this.resetSpeedEvent = this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+
+				playerSpeed -= 150;
+
+			});
+		} else {
+			this._game.time.events.remove(this.resetSpeedEvent);
+			
+			this.resetSpeedEvent = this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+
+				playerSpeed -= 150;
+
+			});
+		}
 	},
 
 	addLife: function(player) {

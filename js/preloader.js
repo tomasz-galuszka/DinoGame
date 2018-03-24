@@ -7,6 +7,11 @@ Game.Preloader = function(game) {
 Game.Preloader.prototype = {
 
 	preload: function() {
+		// modify tiled maps
+		// TODO
+
+
+
 		this.stage.backgroundColor = '#000';
 
 		this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloadBar');
