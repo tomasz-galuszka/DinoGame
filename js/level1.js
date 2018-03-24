@@ -35,6 +35,7 @@ var shootTime = 0;
 var nuts;
 var respawn;
 var lifesText;
+var traps;
 
 var playerXp = 0;
 var gameXpSteps = 15;
@@ -54,9 +55,8 @@ Game.Level1.prototype =  {
 
 		this.map = _game.add.tilemap('map');
 		this.map.addTilesetImage('tileset', 'tiles');
-		this.map.setCollisionBetween(0, 3);
+		this.map.setCollisionBetween(0, 4, true);
 
-		this.map.setTileIndexCallback(6, this.spawn.bind(this), _game);
 		this.map.setTileIndexCallback(7, this.collectCoin.bind(this), _game);
 		this.map.setTileIndexCallback(9, this.speedPowerUp.bind(this), _game);
 		this.map.setTileIndexCallback(10, this.finishLevel.bind(this), _game);
@@ -82,6 +82,17 @@ Game.Level1.prototype =  {
 		this.map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
 
 		this.spawn();
+
+		traps = _game.add.group();
+		traps.enableBody = true;
+
+		this.map.createFromObjects('Traps', 6, 'trap', 0, true, false, traps);
+
+		traps.forEach(function(trap) {
+			trap.body.immovable = true;
+			trap.scale.x = 0.8;
+			trap.scale.y = 0.8;
+		}, this._game);
 
 		controlls = {
 			right: _game.input.keyboard.addKey(Phaser.Keyboard.D),
@@ -112,9 +123,11 @@ Game.Level1.prototype =  {
 
 	update: function(_game) {
 		_game.physics.arcade.collide(player, this.layer);
+		_game.physics.arcade.collide(traps, this.layer);
 
 		_game.physics.arcade.collide(player, enemy1.bird, this.spawn);
 		_game.physics.arcade.collide(player, enemy2.bird, this.spawn);
+		_game.physics.arcade.collide(player, traps, this.spawn);
 
 		player.body.velocity.x = 0;
 		playerLevel = Math.log(playerXp, gameXpSteps);
@@ -133,7 +146,7 @@ Game.Level1.prototype =  {
 
 		if (controlls.up.isDown && (player.body.onFloor() || player.body.touching.down) && _game.time.now > jumpTimer) {
 			player.animations.play('jump');
-			player.body.velocity.y = -600;
+			player.body.velocity.y = -650;
 			jumpTimer = _game.time.now + 750;
 		}
 
@@ -178,7 +191,7 @@ Game.Level1.prototype =  {
 	},
 
 	collectCoin: function() {
-		this.map.putTile(-1, this.layer.getTileX(player.x), this.layer.getTileY(player.y));
+		this.map.putTile(-1, this.layer.getTileX(player.x - 10), this.layer.getTileY(player.y));
 
 		playerXp += 15;
 	},
@@ -209,10 +222,10 @@ Game.Level1.prototype =  {
 	speedPowerUp: function() {
 		this.map.putTile(-1, this.layer.getTileX(player.x), this.layer.getTileY(player.y));
 
-		playerSpeed += 50;
+		playerSpeed += 30;
 
 		this._game.time.events.add(Phaser.Timer.SECOND * 2, function() {
-			playerSpeed -= 50;
+			playerSpeed -= 30;
 		});
 
 	},

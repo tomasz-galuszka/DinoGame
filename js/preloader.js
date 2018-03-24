@@ -30,6 +30,8 @@ Game.Preloader.prototype = {
 
 		this.load.image('nut', 'assets/nut.png');
 
+		this.load.image('trap', 'assets/trap.png');
+
 		this.load.image('tilescreen', 'assets/menu_background.png');
 
 		this.load.image('button', 'assets/menu_button.png');
