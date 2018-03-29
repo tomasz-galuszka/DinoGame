@@ -3,9 +3,9 @@ Game.Utils = (function () {
     'user strict';
     return {
         checkOverlap: function (game, spriteA, spriteB) {
-            var boundsA = spriteA.getBounds();
+            let boundsA = spriteA.getBounds();
 
-            var boundsB = spriteB.getBounds();
+            let boundsB = spriteB.getBounds();
 
             return Phaser.Rectangle.intersects(boundsA, boundsB);
         },

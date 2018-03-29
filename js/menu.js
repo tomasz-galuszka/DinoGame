@@ -11,7 +11,7 @@ Game.MainMenu.prototype = {
             console.log('About');
         });
 
-        var tilescreen = game.add.sprite(game.world.centerX, game.world.centerY - 192, 'tilescreen');
+        let tilescreen = game.add.sprite(game.world.centerX, game.world.centerY - 192, 'tilescreen');
         tilescreen.anchor.setTo(0.5, 0.5);
 
     },
@@ -19,13 +19,13 @@ Game.MainMenu.prototype = {
     update: function () {},
 
     createButton: function (game, text, x, y, w, h, callback) {
-        var button = game.add.button(x, y, 'button', callback, this, 2, 1, 0);
+        let button = game.add.button(x, y, 'button', callback, this, 2, 1, 0);
 
         button.anchor.setTo(0.5, 0.5);
         button.width = w;
         button.height = h;
 
-        var txt = game.add.text(button.x, button.y, text, {font: '14px Arial', fill: '#fff', alling: 'center'});
+        let txt = game.add.text(button.x, button.y, text, {font: '14px Arial', fill: '#fff', alling: 'center'});
         txt.anchor.setTo(0.5, 0.5);
     }
 };
