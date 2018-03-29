@@ -1,4 +1,4 @@
-var Game = {};
+let Game = {};
 
 Game.Boot = function () {
 };
