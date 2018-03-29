@@ -184,11 +184,11 @@ Game.Level1 = function (game) {
             this.shootNut('right', this._game);
         }
 
-        if (Game.Utils.checkOverlap(this._game, this.nuts, this.enemy1.bird)) {
+        if (Utils.checkOverlap(this._game, this.nuts, this.enemy1.bird)) {
             this.enemy1.bird.kill();
         }
 
-        if (Game.Utils.checkOverlap(this._game, this.nuts, this.enemy2.bird)) {
+        if (Utils.checkOverlap(this._game, this.nuts, this.enemy2.bird)) {
             this.enemy2.bird.kill();
         }
     };
@@ -253,7 +253,7 @@ Game.Level1.prototype = {
 
         if (this.player.lifes <= 0) {
 
-            Game.Utils.showText(this._game, this.player.x, 'GAME OVER');
+            Utils.showText(this._game, this.player.x, 'GAME OVER');
 
             this.player.kill();
 
@@ -336,7 +336,7 @@ Game.Level1.prototype = {
     },
 
     finishLevel: function () {
-        Game.Utils.showText(this._game, this.player.x, 'Congratulations !');
+        Utils.showText(this._game, this.player.x, 'Congratulations !');
 
         this.player.kill();
     }
