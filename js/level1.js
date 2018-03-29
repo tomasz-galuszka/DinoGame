@@ -108,8 +108,8 @@ Game.Level1 = function (game) {
     };
 
     let constructEnemies = function () {
-        this.enemy1 = new Game.EnemyBird(0, this._game, this.player.x + 400, this.player.y - 200);
-        this.enemy2 = new Game.EnemyBird(1, this._game, this.player.x + 800, this.player.y - 200);
+        this.enemy1 = new GameEnemyBird(0, this._game, this.player.x + 400, this.player.y - 200);
+        this.enemy2 = new GameEnemyBird(1, this._game, this.player.x + 800, this.player.y - 200);
     };
 
 
