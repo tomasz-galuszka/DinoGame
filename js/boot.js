@@ -1,5 +1,3 @@
-let Game = {};
-
 class GameBoot {
 
     init () {
