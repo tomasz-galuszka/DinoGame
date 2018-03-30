@@ -1,4 +1,6 @@
-class GameLevel1Builder {
+import { GameEnemyBird } from "./enemies.js";
+
+export class GameLevel1Builder {
 
     constructor(_game) {
         this._game = _game;

@@ -1,4 +1,4 @@
-class GameBoot {
+export class GameBoot {
 
     init () {
         this.input.maxPointers = 1;

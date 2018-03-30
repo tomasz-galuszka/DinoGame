@@ -1,4 +1,4 @@
-class GamePreloader {
+export class GamePreloader {
 
     constructor () {
         this.preloadBar = null;

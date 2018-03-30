@@ -1,22 +1,22 @@
-class GameMainMenu {
+export class GameMainMenu {
 
     create (game) {
-        this.createButton(game, 'Play', game.world.centerX, game.world.centerY + 32, 300, 100, function () {
+        this._createButton(game, 'Play', game.world.centerX, game.world.centerY + 32, 300, 100, function () {
             this.state.start('Level1');
         });
 
-        this.createButton(game, 'About', game.world.centerX, game.world.centerY + 192, 300, 100, function () {
+        this._createButton(game, 'About', game.world.centerX, game.world.centerY + 192, 300, 100, function () {
             console.log('About');
         });
 
         let tilescreen = game.add.sprite(game.world.centerX, game.world.centerY - 192, 'tilescreen');
+        
         tilescreen.anchor.setTo(0.5, 0.5);
-
     }
 
     update () {}
 
-    createButton (game, text, x, y, w, h, callback) {
+    _createButton (game, text, x, y, w, h, callback) {
         let button = game.add.button(x, y, 'button', callback, this, 2, 1, 0);
 
         button.anchor.setTo(0.5, 0.5);

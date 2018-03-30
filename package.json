@@ -1,0 +1,21 @@
+{
+    "name": "DinoGame",
+    "description": "A description.",
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babelify": "^8.0.0",
+        "browserify": "^16.1.1"
+    },
+    "scripts": {
+        "start": "rm -r lib && babel js -d lib"
+    },
+    "babel": {
+        "presets": [
+            "es2015"
+        ],
+        "ignore": [
+            "phaser.js"
+        ]
+    }
+}

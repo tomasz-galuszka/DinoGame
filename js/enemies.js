@@ -1,4 +1,4 @@
-class GameEnemyBird  {
+export class GameEnemyBird  {
 
     constructor(index, game, x, y) {
         this.bird = game.add.sprite(x, y, 'bird');

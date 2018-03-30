@@ -1,4 +1,4 @@
-class Utils {
+export class Utils {
 
     static checkOverlap(game, spriteA, spriteB) {
         let boundsA = spriteA.getBounds();

@@ -1,4 +1,7 @@
-class GameLevel1 {
+import {GameLevel1Builder} from './level1-builder.js'
+import {Utils} from './utils.js'
+
+export class GameLevel1 {
 
     constructor (game) {
         this._game = game;
@@ -39,24 +42,25 @@ class GameLevel1 {
     }
 
     initialiseGame () {
+        let levelBuilder = new GameLevel1Builder(this._game);
+
         this._game.stage.backgroundColor = '#3A5963';
         this._game.physics.arcade.gravity.y = 1400;
 
+        let keyboard = this._game.input.keyboard;
         this.controlls = {
-            right: this._game.input.keyboard.addKey(Phaser.Keyboard.D),
-            left: this._game.input.keyboard.addKey(Phaser.Keyboard.A),
-            up: this._game.input.keyboard.addKey(Phaser.Keyboard.W),
-            shootUp: this._game.input.keyboard.addKey(Phaser.Keyboard.UP),
-            shootRight: this._game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
+            right: keyboard.addKey(Phaser.Keyboard.D),
+            left: keyboard.addKey(Phaser.Keyboard.A),
+            up: keyboard.addKey(Phaser.Keyboard.W),
+            shootUp: keyboard.addKey(Phaser.Keyboard.UP),
+            shootRight: keyboard.addKey(Phaser.Keyboard.RIGHT)
         };
 
-        let levelBuilder = new GameLevel1Builder(this._game);
-
         this.map = levelBuilder.constructMap({
-            onCoinCollision: this.collectCoin.bind(this),
-            onSpeedCollision: this.speedPowerUp.bind(this),
-            onDoorCollitions: this.finishLevel.bind(this),
-            onHeartCollision: this.addLife.bind(this)
+            onCoinCollision:  () => this.collectCoin(),
+            onSpeedCollision: () => this.speedPowerUp(),
+            onDoorCollitions: () => this.finishLevel(),
+            onHeartCollision: () => this.addLife()
         });
 
         this.layer = levelBuilder.constructLayer(this.map);
@@ -86,9 +90,9 @@ class GameLevel1 {
         this._game.physics.arcade.collide(this.player, this.layer);
         this._game.physics.arcade.collide(this.traps, this.layer);
 
-        this._game.physics.arcade.collide(this.player, this.enemy1.bird, this.spawn.bind(this));
-        this._game.physics.arcade.collide(this.player, this.enemy2.bird, this.spawn.bind(this));
-        this._game.physics.arcade.collide(this.player, this.traps, this.spawn.bind(this));
+        this._game.physics.arcade.collide(this.player, this.enemy1.bird, () => this.spawn());
+        this._game.physics.arcade.collide(this.player, this.enemy2.bird, () => this.spawn());
+        this._game.physics.arcade.collide(this.player, this.traps, () => this.spawn());
     }
 
     configureControlls () {
