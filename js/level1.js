@@ -125,6 +125,20 @@ class GameLevel1 {
 
     }
 
+    create() {
+        this.initialiseGame();
+    }
+
+    update() {
+
+        this.configureCollisions();
+
+        this.player.body.velocity.x = 0;
+
+        this.configureControlls();
+
+    }
+
     initialiseGame () {
         this._game.stage.backgroundColor = '#3A5963';
         this._game.physics.arcade.gravity.y = 1400;
@@ -216,56 +230,6 @@ class GameLevel1 {
         if (Utils.checkOverlap(this._game, this.nuts, this.enemy2.bird)) {
             this.enemy2.bird.kill();
         }
-    }
-
-    updateLifeBanner() {
-        this.lifesText.setText('Lifes: ' + this.player.lifes);
-    }
-
-    getExtraLifes() {
-        return this.extraLifes;
-    }
-
-    decreaseExtraLifes () {
-        this.extraLifes -= 1;
-    }
-
-    getJumpTimer() {
-        return this.jumpTimer;
-    }
-
-    setJumpTimer(time) {
-        this.jumpTimer = time;
-    }
-
-    getShootTimer() {
-        return this.shootTimer;
-    }
-
-    setShootTimer(time) {
-        this.shootTimer = time;
-    }
-
-    getSpeedTimer() {
-        return this.speedTimer;
-    }
-
-    setSpeedTimer(time) {
-        this.speedTimer = time;
-    }
-
-    create() {
-        this.initialiseGame();
-    }
-
-    update() {
-
-        this.configureCollisions();
-
-        this.player.body.velocity.x = 0;
-
-        this.configureControlls();
-
     }
 
     spawn () {
@@ -361,5 +325,41 @@ class GameLevel1 {
         Utils.showText(this._game, this.player.x, 'Congratulations !');
 
         this.player.kill();
+    }
+
+    updateLifeBanner() {
+        this.lifesText.setText('Lifes: ' + this.player.lifes);
+    }
+
+    getExtraLifes() {
+        return this.extraLifes;
+    }
+
+    decreaseExtraLifes () {
+        this.extraLifes -= 1;
+    }
+
+    getJumpTimer() {
+        return this.jumpTimer;
+    }
+
+    setJumpTimer(time) {
+        this.jumpTimer = time;
+    }
+
+    getShootTimer() {
+        return this.shootTimer;
+    }
+
+    setShootTimer(time) {
+        this.shootTimer = time;
+    }
+
+    getSpeedTimer() {
+        return this.speedTimer;
+    }
+
+    setSpeedTimer(time) {
+        this.speedTimer = time;
     }
 };
