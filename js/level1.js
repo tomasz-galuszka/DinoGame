@@ -1,47 +1,29 @@
-Game.Level1 = function (game) {
+class GameLevel1Builder {
 
-    this._game = game;
-    this.controlls = null;
+    constructor(_game) {
+        this._game = _game;
+    }
 
-    // game objects
-    this.map = null;
-    this.player = null;
-    this.nuts = null;
-    this.lifesText = null;
-    this.respawn = null;
-    this.traps = null;
-    this.enemy1 = null;
-    this.enemy2 = null;
-
-    // settings
-    let playerSpeed = 200;
-    let playerLifes = 3;
-    let extraLifes = 1;
-    let jumpTimer = 0;
-    let shootTimer = 0;
-    let speedTimer = 0;
-
-    // constructor functions
-    let constructMap = function () {
+    constructMap (callbacks) {
         let map = this._game.add.tilemap('map');
         map.addTilesetImage('tileset', 'tiles');
         map.setCollisionBetween(0, 4, true);
-        map.setTileIndexCallback(7, this.collectCoin.bind(this), this._game);
-        map.setTileIndexCallback(9, this.speedPowerUp.bind(this), this._game);
-        map.setTileIndexCallback(10, this.finishLevel.bind(this), this._game);
-        map.setTileIndexCallback(11, this.addLife.bind(this), this._game);
+        map.setTileIndexCallback(7, callbacks.onCoinCollision, this._game);
+        map.setTileIndexCallback(9, callbacks.onSpeedCollision, this._game);
+        map.setTileIndexCallback(10, callbacks.onDoorCollitions, this._game);
+        map.setTileIndexCallback(11, callbacks.onHeartCollision, this._game);
 
-        this.map = map;
-    };
+        return map;
+    }
 
-    let constructLayer = function () {
-        let layer = this.map.createLayer('Tile Layer 1');
+    constructLayer (map) {
+        let layer = map.createLayer('Tile Layer 1');
         layer.resizeWorld();
 
-        this.layer = layer;
-    };
+        return layer;
+    }
 
-    let constructPlayer = function () {
+    constructPlayer (config) {
         let player = this._game.add.sprite(0, 0, 'player');
         player.anchor.setTo(0.5, 0.5);
         player.animations.add('idle', [0, 1], 1, true);
@@ -54,12 +36,13 @@ Game.Level1 = function (game) {
 
         this._game.camera.follow(player);
 
-        this.player = player;
-        this.player.speed = playerSpeed;
-        this.player.lifes = playerLifes;
-    };
+        player.speed = config.playerSpeed;
+        player.lifes = config.playerLifes;
 
-    let constructNuts = function () {
+        return player;
+    }
+
+    constructNuts () {
         let nuts = this._game.add.group();
 
         nuts.enableBody = true;
@@ -73,30 +56,30 @@ Game.Level1 = function (game) {
         nuts.setAll('outOfBoundsKill', true);
         nuts.setAll('checkWorldBounds', true);
 
-        this.nuts = nuts;
-    };
+        return nuts;
+    }
 
-    let constructLifeBar = function () {
-        let lifesText = this._game.add.text(70, 40, 'Lifes: ' + this.player.lifes, {font: 'bold 16px Arial', fill: '#fff'});
+    constructLifeBar (player) {
+        let lifesText = this._game.add.text(70, 40, 'Lifes: ' + player.lifes, {font: 'bold 16px Arial', fill: '#fff'});
         lifesText.fixedToCamera = true;
 
-        this.lifesText = lifesText;
-        console.log('x');
-    };
+        return lifesText;
+    }
 
-    let constructRespawnPoint = function () {
+    constructRespawnPoint (map) {
+        let respawn = this._game.add.group();
+        
+        map.createFromObjects('Object Layer 1', 8, '', 0, true, false, respawn);
+        
+        return respawn;
+    }
 
-        this.respawn = this._game.add.group();
-
-        this.map.createFromObjects('Object Layer 1', 8, '', 0, true, false, this.respawn);
-    };
-
-    let constructTraps = function () {
+    constructTraps (map) {
         let traps = this._game.add.group();
 
         traps.enableBody = true;
 
-        this.map.createFromObjects('Traps', 6, 'trap', 0, true, false, traps);
+        map.createFromObjects('Traps', 6, 'trap', 0, true, false, traps);
 
         traps.forEach(function (trap) {
             trap.body.immovable = true;
@@ -104,16 +87,45 @@ Game.Level1 = function (game) {
             trap.scale.y = 0.8;
         });
 
-        this.traps = traps;
-    };
+        return traps;
+    }
 
-    let constructEnemies = function () {
-        this.enemy1 = new GameEnemyBird(0, this._game, this.player.x + 400, this.player.y - 200);
-        this.enemy2 = new GameEnemyBird(1, this._game, this.player.x + 800, this.player.y - 200);
-    };
+    constructEnemies (player) {
+        let enemy1 = new GameEnemyBird(0, this._game, player.x + 400, player.y - 200);
+        let enemy2 = new GameEnemyBird(1, this._game, player.x + 800, player.y - 200);
+
+        return {enemy1, enemy2};
+    }
+};
 
 
-    this.initialiseGame = function () {
+class GameLevel1 {
+
+    constructor (game) {
+        this._game = game;
+        this.controlls = null;
+
+        // game objects
+        this.map = null;
+        this.player = null;
+        this.nuts = null;
+        this.lifesText = null;
+        this.respawn = null;
+        this.traps = null;
+        this.enemy1 = null;
+        this.enemy2 = null;
+
+        // settings
+        this.playerSpeed = 200;
+        this.playerLifes = 3;
+        this.extraLifes = 1;
+        this.jumpTimer = 0;
+        this.shootTimer = 0;
+        this.speedTimer = 0;
+
+    }
+
+    initialiseGame () {
         this._game.stage.backgroundColor = '#3A5963';
         this._game.physics.arcade.gravity.y = 1400;
 
@@ -125,35 +137,48 @@ Game.Level1 = function (game) {
             shootRight: this._game.input.keyboard.addKey(Phaser.Keyboard.RIGHT)
         };
 
-        constructMap.call(this);
+        let levelBuilder = new GameLevel1Builder(this._game);
 
-        constructLayer.call(this);
+        this.map = levelBuilder.constructMap({
+            onCoinCollision: this.collectCoin.bind(this),
+            onSpeedCollision: this.speedPowerUp.bind(this),
+            onDoorCollitions: this.finishLevel.bind(this),
+            onHeartCollision: this.addLife.bind(this)
+        });
 
-        constructPlayer.call(this);
+        this.layer = levelBuilder.constructLayer(this.map);
 
-        constructLifeBar.call(this);
+        this.player = levelBuilder.constructPlayer({
+            playerSpeed: this.playerSpeed,
+            playerLifes: this.playerLifes
+        });
 
-        constructRespawnPoint.call(this);
+        this.lifesText = levelBuilder.constructLifeBar(this.player);
 
-        constructTraps.call(this);
+        this.respawn = levelBuilder.constructRespawnPoint(this.map);
 
-        constructNuts.call(this);
+        this.traps = levelBuilder.constructTraps(this.map);
 
-        this.spawn.call(this);
+        this.nuts = levelBuilder.constructNuts();
 
-        constructEnemies.call(this);
-    };
+        this.spawn();
 
-    this.configureCollisions = function () {
+        let enemies = levelBuilder.constructEnemies(this.player);
+
+        this.enemy1 = enemies.enemy1;
+        this.enemy2 = enemies.enemy2;
+    }
+
+    configureCollisions () {
         this._game.physics.arcade.collide(this.player, this.layer);
         this._game.physics.arcade.collide(this.traps, this.layer);
 
         this._game.physics.arcade.collide(this.player, this.enemy1.bird, this.spawn.bind(this));
         this._game.physics.arcade.collide(this.player, this.enemy2.bird, this.spawn.bind(this));
         this._game.physics.arcade.collide(this.player, this.traps, this.spawn.bind(this));
-    };
+    }
 
-    this.configureControlls = function () {
+    configureControlls () {
         if (this.controlls.right.isDown) {
             this.player.animations.play('run');
             this.player.scale.setTo(1, 1);
@@ -191,52 +216,49 @@ Game.Level1 = function (game) {
         if (Utils.checkOverlap(this._game, this.nuts, this.enemy2.bird)) {
             this.enemy2.bird.kill();
         }
-    };
+    }
 
-    this.updateLifeBanner = function () {
+    updateLifeBanner() {
         this.lifesText.setText('Lifes: ' + this.player.lifes);
-    };
+    }
 
-    this.getExtraLifes = function () {
-        return extraLifes;
-    };
+    getExtraLifes() {
+        return this.extraLifes;
+    }
 
-    this.decreaseExtraLifes = function () {
-        extraLifes -= 1;
-    };
+    decreaseExtraLifes () {
+        this.extraLifes -= 1;
+    }
 
-    this.getJumpTimer = function () {
-        return jumpTimer;
-    };
+    getJumpTimer() {
+        return this.jumpTimer;
+    }
 
-    this.setJumpTimer = function (time) {
-        jumpTimer = time;
-    };
+    setJumpTimer(time) {
+        this.jumpTimer = time;
+    }
 
-    this.getShootTimer = function () {
-        return shootTimer;
-    };
+    getShootTimer() {
+        return this.shootTimer;
+    }
 
-    this.setShootTimer = function (time) {
-        shootTimer = time;
-    };
+    setShootTimer(time) {
+        this.shootTimer = time;
+    }
 
-    this.getSpeedTimer = function () {
-        return speedTimer;
-    };
+    getSpeedTimer() {
+        return this.speedTimer;
+    }
 
-    this.setSpeedTimer = function (time) {
-        speedTimer = time;
-    };
-};
+    setSpeedTimer(time) {
+        this.speedTimer = time;
+    }
 
-Game.Level1.prototype = {
-
-    create: function () {
+    create() {
         this.initialiseGame();
-    },
+    }
 
-    update: function () {
+    update() {
 
         this.configureCollisions();
 
@@ -244,9 +266,9 @@ Game.Level1.prototype = {
 
         this.configureControlls();
 
-    },
+    }
 
-    spawn: function () {
+    spawn () {
         this.player.lifes -= 1;
 
         this.updateLifeBanner();
@@ -266,13 +288,13 @@ Game.Level1.prototype = {
 
         }, this);
 
-    },
+    }
 
-    collectCoin: function () {
+    collectCoin () {
         this.map.putTile(-1, this.layer.getTileX(this.player.x - 10), this.layer.getTileY(this.player.y));
-    },
+    }
 
-    shootNut: function (direction) {
+    shootNut(direction) {
         if (this._game.time.now > this.getShootTimer()) {
 
             let nut = this.nuts.getFirstExists(false);
@@ -290,9 +312,9 @@ Game.Level1.prototype = {
                 this.setShootTimer(this._game.time.now + 900);
             }
         }
-    },
+    }
 
-    speedPowerUp: function () {
+    speedPowerUp() {
 
         this.map.putTile(-1, this.layer.getTileX(this.player.x + 10), this.layer.getTileY(this.player.y));
 
@@ -317,9 +339,9 @@ Game.Level1.prototype = {
 
             }, this);
         }
-    },
+    }
 
-    addLife: function (player) {
+    addLife(player) {
         let playerX = this.layer.getTileX(player.x + 12);
         let playerY = this.layer.getTileY(player.y);
 
@@ -333,9 +355,9 @@ Game.Level1.prototype = {
         }
 
         this.updateLifeBanner();
-    },
+    }
 
-    finishLevel: function () {
+    finishLevel() {
         Utils.showText(this._game, this.player.x, 'Congratulations !');
 
         this.player.kill();

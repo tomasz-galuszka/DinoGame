@@ -1,8 +1,6 @@
-Game.MainMenu = function () {};
+class GameMainMenu {
 
-Game.MainMenu.prototype = {
-
-    create: function (game) {
+    create (game) {
         this.createButton(game, 'Play', game.world.centerX, game.world.centerY + 32, 300, 100, function () {
             this.state.start('Level1');
         });
@@ -14,11 +12,11 @@ Game.MainMenu.prototype = {
         let tilescreen = game.add.sprite(game.world.centerX, game.world.centerY - 192, 'tilescreen');
         tilescreen.anchor.setTo(0.5, 0.5);
 
-    },
+    }
 
-    update: function () {},
+    update () {}
 
-    createButton: function (game, text, x, y, w, h, callback) {
+    createButton (game, text, x, y, w, h, callback) {
         let button = game.add.button(x, y, 'button', callback, this, 2, 1, 0);
 
         button.anchor.setTo(0.5, 0.5);

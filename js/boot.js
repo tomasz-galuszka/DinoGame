@@ -1,20 +1,17 @@
 let Game = {};
 
-Game.Boot = function () {
-};
+class GameBoot {
 
-Game.Boot.prototype = {
-
-    init: function () {
+    init () {
         this.input.maxPointers = 1;
         this.stage.disableVisibility = true;
-    },
+    }
 
-    preload: function () {
+    preload () {
         this.load.image('preloadBar', 'assets/preloader.png');
-    },
+    }
 
-    create: function () {
+    create () {
         this.state.start('Preloader');
     }
 };

@@ -1,12 +1,10 @@
-Game.Preloader = function () {
+class GamePreloader {
 
-    this.preloadBar = null;
+    constructor () {
+        this.preloadBar = null;
+    }
 
-};
-
-Game.Preloader.prototype = {
-
-    preload: function () {
+    preload () {
 
         this.stage.backgroundColor = '#000';
 
@@ -42,9 +40,9 @@ Game.Preloader.prototype = {
         this.load.spritesheet('player', 'assets/player.png', 24, 26);
 
         this.load.spritesheet('buttons', 'assets/buttons.png', 193, 71);
-    },
+    }
 
-    create: function () {
+    create () {
         this.state.start('MainMenu');
     }
 
